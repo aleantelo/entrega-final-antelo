@@ -1,0 +1,1179 @@
+{
+  "name": "Entrega - Antelo",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.fields.Idea }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Eres un asistente de IA especializado en enología, marketing digital y creación de contenido para redes sociales en el rubro vitivinícola (vinos de altura del norte argentino, malbecs de Mendoza y etiquetas de San Juan). Tu objetivo principal es redactar un borrador comercial, antojable y persuasivo para una pieza de marketing, basándote ÚNICAMENTE en la \"Idea\" proporcionada y utilizando estrictamente la información de contexto obtenida mediante el sistema de recuperación (RAG) de maridajes y regiones.\n\n### Directrices de Ejecución:\n1. Analiza la {{ $json.fields.Idea }} entrante para comprender el enfoque de la pieza (maridaje con platos, características de los vinos de altura, regiones o momentos de consumo).\n2. Consulta el contexto recuperado (RAG) para extraer rigurosamente:\n   - Perfiles geográficos, climáticos y varietales (vinos de altura de Salta, Malbec de Mendoza o etiquetas de San Juan).\n   - Combinaciones gastronómicas precisas (empanadas, asados, guisados, picadas o postres) y notas de cata verídicas.\n   - El tono de voz cálido, sofisticado pero cercano, ideal para amantes del buen vino y la buena mesa.\n3. Redacta un texto publicitario que despierte antojo y curiosidad, estructurado con un gancho potente al inicio (una pregunta o frase atrapante), desarrollo claro de los sabores y un llamado a la acción (CTA) acompañado de hashtags relevantes al final.\n\n### Restricciones Críticas:\n- No inventes regiones vitivinícolas, notas de cata ni maridajes que no figuren en la base de conocimientos RAG.\n- Si la información necesaria para responder a la idea semilla no se encuentra en el RAG, indícalo claramente en el borrador de manera profesional.\n- Mantén siempre un tono de voz elegante, apasionado por el vino y cercano con el consumidor.\n\n### Formato de Salida Esperado:\nDevuelve UNICAMENTE CON FORMATO JSON con la siguiente estructura estricta:\n{\n\t\"id\": \"{{ $json.id }}\",\n\t\"borrador\": \"[Aquí va el texto publicitario completo redactado por el agente]\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1856,
+        16
+      ],
+      "id": "c14c62dc-b1c0-4380-b2d4-5a1d2a378e28",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca información textual dentro de la base de conocimiento RAG de la empresa. Usala SIEMPRE que tengas que armar una pieza de marketing, nunca la hagas de memoria.",
+        "memoryKey": {
+          "__rl": true,
+          "value": "Base de conocimiento",
+          "mode": "list",
+          "cachedResultName": "Base de conocimiento"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -1872,
+        256
+      ],
+      "id": "c5584326-46c1-4464-b820-d76298d597df",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -2000,
+        256
+      ],
+      "id": "fb91865d-e536-4c9a-9887-46d11195f5af",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "zOccBqMfK97VDno3",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        464
+      ],
+      "id": "8f5d0d83-18c7-44e9-b45b-33fb4eefd091",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"id\": \"identificacion\",\n\t\"borrador\": \"borrador\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1584,
+        256
+      ],
+      "id": "fa7d2170-9c1c-439d-8700-9fe01d73b429",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1120,
+        -80
+      ],
+      "id": "5cd89079-d1e5-41c5-b092-9316c51beab8",
+      "name": "Wait",
+      "webhookId": "8e781af8-c829-4678-84f8-1ec4f0136bd2"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfYZ9OexL0DcAyP",
+          "mode": "list",
+          "cachedResultName": "Entrega-Antelo",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLOGKmYLfQnExse",
+          "mode": "list",
+          "cachedResultName": "Ideas",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP/tblLOGKmYLfQnExse"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Borrador IA": "={{ $json.output.borrador }}",
+            "Estado": "Pendiente",
+            "id": "={{ $json.output.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador IA",
+              "displayName": "Borrador IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Modificado",
+              "displayName": "Modificado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1488,
+        16
+      ],
+      "id": "d219bbe7-90b4-48b5-939d-99eaf8570b25",
+      "name": "Emision de borrador",
+      "retryOnFail": true,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C6RBU4VEG",
+          "mode": "list",
+          "cachedResultName": "todo-vinoteca"
+        },
+        "message": "=Para la idea: \n{{ $('publicidad nueva').item.json.fields.Idea }},\n\nSe generó este borrador:\n{{ $json.fields['Borrador IA'] }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprobar",
+            "disapproveLabel": "Rechazar"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        -1280,
+        -80
+      ],
+      "id": "f815960f-5657-4270-a305-ec7e3af680fc",
+      "name": "Envio de borrador para aprobar",
+      "webhookId": "061224b3-476d-414d-8139-b03c811f3843",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "fSfltEkJ4B4yxsrC",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Envio de borrador para aprobar').item.json.data.approved }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "03b16351-e5d4-4d0c-844b-2fea91658607"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "57ce857a-1eb0-4fe8-a43c-4b7bb791e8f6",
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -928,
+        -80
+      ],
+      "id": "7e380a2d-886c-4118-9ef5-ac4a163f719d",
+      "name": "¿Aprobado?"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfYZ9OexL0DcAyP",
+          "mode": "list",
+          "cachedResultName": "Entrega-Antelo",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLOGKmYLfQnExse",
+          "mode": "list",
+          "cachedResultName": "Ideas",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP/tblLOGKmYLfQnExse"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Aprobado": true,
+            "id": "={{ $('AI Agent').item.json.output.id }}",
+            "Estado": "Aprobado por Humano"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador IA",
+              "displayName": "Borrador IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Modificado",
+              "displayName": "Modificado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        -192
+      ],
+      "id": "07fa5b1d-3b9a-4ebd-bb1b-5de40960e8c6",
+      "name": "Aprobado",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfYZ9OexL0DcAyP",
+          "mode": "list",
+          "cachedResultName": "Entrega-Antelo",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLOGKmYLfQnExse",
+          "mode": "list",
+          "cachedResultName": "Ideas",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP/tblLOGKmYLfQnExse"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Rechazado": true,
+            "id": "={{ $('AI Agent').item.json.output.id }}",
+            "Estado": "Rechazado",
+            "Aprobado": false
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador IA",
+              "displayName": "Borrador IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modificado",
+              "displayName": "Modificado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        64
+      ],
+      "id": "af67b103-8fc6-4acd-bb49-0b7811bb4bbf",
+      "name": "Rechazado",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "alejandronicolasantelo@gmail.com",
+        "subject": "={{ $json.fields.Idea }}",
+        "emailType": "text",
+        "message": "={{ $json.fields[\"Borrador IA\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -576,
+        -192
+      ],
+      "id": "c07fbe36-d6dc-44cd-b6cf-75f7313a5749",
+      "name": "Envio de publicidad",
+      "webhookId": "f78a51cc-bda1-4d82-930c-68eade106a7d",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JhfQGn7RnA2tmZ8q",
+          "name": "Gmail account 3"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appfYZ9OexL0DcAyP",
+          "mode": "list",
+          "cachedResultName": "Entrega-Antelo",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLOGKmYLfQnExse",
+          "mode": "list",
+          "cachedResultName": "Ideas",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP/tblLOGKmYLfQnExse"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Procesado por IA",
+            "id": "={{ $('AI Agent').item.json.output.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Borrador IA",
+              "displayName": "Borrador IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Rechazado",
+              "displayName": "Rechazado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Modificado",
+              "displayName": "Modificado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -368,
+        -224
+      ],
+      "id": "f0b18c1e-0ca2-47d3-b4f6-2182c6ad2586",
+      "name": "Cambio de estado a publicado",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "value": "https://airtable.com/appfYZ9OexL0DcAyP/tblLOGKmYLfQnExse/viwe4HuFNjdq8qCwb?blocks=hide",
+          "mode": "url"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "https://airtable.com/appfYZ9OexL0DcAyP/tblLOGKmYLfQnExse/viwe4HuFNjdq8qCwb?blocks=hide",
+          "mode": "url"
+        },
+        "triggerField": "Idea",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2128,
+        16
+      ],
+      "id": "6fdd4ff8-bf9e-4a51-a7c3-63210a2d3d51",
+      "name": "publicidad nueva",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appfYZ9OexL0DcAyP",
+          "mode": "list",
+          "cachedResultName": "Entrega-Antelo",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl1we0iSnIkMmuDP",
+          "mode": "list",
+          "cachedResultName": "Errores",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP/tbl1we0iSnIkMmuDP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Error": "={{ $json.error.message }}",
+            "Descripcion de error": "={{ $json.error.cause.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Descripcion de error",
+              "displayName": "Descripcion de error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -1328,
+        208
+      ],
+      "id": "6c42bd5a-3236-4d73-8399-4e81def26034",
+      "name": "Log de error en base de datos",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appfYZ9OexL0DcAyP",
+          "mode": "list",
+          "cachedResultName": "Entrega-Antelo",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl1we0iSnIkMmuDP",
+          "mode": "list",
+          "cachedResultName": "Errores",
+          "cachedResultUrl": "https://airtable.com/appfYZ9OexL0DcAyP/tbl1we0iSnIkMmuDP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Descripcion de error": "={{ $json.error }}",
+            "Error": "Error en gmail"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Descripcion de error",
+              "displayName": "Descripcion de error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        -16
+      ],
+      "id": "8b380978-45f7-45ee-9402-23ec0e5672e0",
+      "name": "Create a record",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "wx81ksgympJIGU83",
+          "name": "Airtable account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Emision de borrador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "¿Aprobado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emision de borrador": {
+      "main": [
+        [
+          {
+            "node": "Envio de borrador para aprobar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log de error en base de datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de borrador para aprobar": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Aprobado?": {
+      "main": [
+        [
+          {
+            "node": "Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aprobado": {
+      "main": [
+        [
+          {
+            "node": "Envio de publicidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de publicidad": {
+      "main": [
+        [
+          {
+            "node": "Cambio de estado a publicado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "publicidad nueva": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1da75978-7ee1-487f-a7cb-462dcc6bb92c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d8aa56218cd710ae2642a65e48a6d69227fa3616b18ae5c857a7af3d8add8e7c"
+  },
+  "nodeGroups": [],
+  "id": "ETFiTq1ILQwdi0Vl",
+  "tags": []
+}
